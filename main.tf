@@ -27,6 +27,11 @@ resource "aws_networkfirewall_rule_group" "suricata_stateful_group" {
   capacity    = var.suricata_stateful_rule_group[count.index]["capacity"]
 
   rule_group {
+    # Set Rule Order to STRICT
+    stateful_rule_options {
+      rule_order = "STRICT_ORDER"
+    }
+
     rules_source {
       rules_string = file(var.suricata_stateful_rule_group[count.index]["rules_file"])
     }
@@ -74,6 +79,11 @@ resource "aws_networkfirewall_rule_group" "domain_stateful_group" {
   capacity    = var.domain_stateful_rule_group[count.index]["capacity"]
 
   rule_group {
+    # Set Rule Order to STRICT
+    stateful_rule_options {
+      rule_order = "STRICT_ORDER"
+    }
+
     dynamic "rule_variables" {
       for_each = [
         for b in lookup(var.domain_stateful_rule_group[count.index], "rule_variables", {}) : b
@@ -124,6 +134,11 @@ resource "aws_networkfirewall_rule_group" "fivetuple_stateful_group" {
   capacity    = var.fivetuple_stateful_rule_group[count.index]["capacity"]
 
   rule_group {
+    # Set Rule Order to STRICT
+    stateful_rule_options {
+      rule_order = "STRICT_ORDER"
+    }
+
     rules_source {
       dynamic "stateful_rule" {
         for_each = var.fivetuple_stateful_rule_group[count.index].rule_config
@@ -223,6 +238,12 @@ resource "aws_networkfirewall_firewall_policy" "this" {
   name = "${var.prefix}-nfw-policy-${var.firewall_name}"
 
   firewall_policy {
+    # Set Rule Order to STRICT
+    stateful_engine_options {
+      rule_order = "STRICT_ORDER"
+    }
+    stateful_default_actions = ["aws:drop_strict", "aws:alert_strict"]
+
     stateless_default_actions          = ["aws:${var.stateless_default_actions}"]
     stateless_fragment_default_actions = ["aws:${var.stateless_fragment_default_actions}"]
 
@@ -240,6 +261,8 @@ resource "aws_networkfirewall_firewall_policy" "this" {
     dynamic "stateful_rule_group_reference" {
       for_each = local.this_stateful_group_arn
       content {
+        # Priority is sequentially as per index in stateless_rule_group list
+        priority     = index(local.this_stateful_group_arn, stateful_rule_group_reference.value) + 1
         resource_arn = stateful_rule_group_reference.value
       }
     }
