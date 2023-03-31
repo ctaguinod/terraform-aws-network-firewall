@@ -27,9 +27,9 @@ resource "aws_networkfirewall_rule_group" "suricata_stateful_group" {
   capacity    = var.suricata_stateful_rule_group[count.index]["capacity"]
 
   rule_group {
-    # Set Rule Order to STRICT
+    # Added to set rule_order to STRICT
     stateful_rule_options {
-      rule_order = "STRICT_ORDER"
+      rule_order = var.stateful_rule_order
     }
 
     rules_source {
@@ -79,9 +79,9 @@ resource "aws_networkfirewall_rule_group" "domain_stateful_group" {
   capacity    = var.domain_stateful_rule_group[count.index]["capacity"]
 
   rule_group {
-    # Set Rule Order to STRICT
+    # Added to set rule_order to STRICT
     stateful_rule_options {
-      rule_order = "STRICT_ORDER"
+      rule_order = var.stateful_rule_order
     }
 
     dynamic "rule_variables" {
@@ -134,9 +134,9 @@ resource "aws_networkfirewall_rule_group" "fivetuple_stateful_group" {
   capacity    = var.fivetuple_stateful_rule_group[count.index]["capacity"]
 
   rule_group {
-    # Set Rule Order to STRICT
+    # Added to set rule_order to STRICT
     stateful_rule_options {
-      rule_order = "STRICT_ORDER"
+      rule_order = var.stateful_rule_order
     }
 
     rules_source {
@@ -238,11 +238,11 @@ resource "aws_networkfirewall_firewall_policy" "this" {
   name = "${var.prefix}-nfw-policy-${var.firewall_name}"
 
   firewall_policy {
-    # Set Rule Order to STRICT
+    # Added to set rule_order to STRICT
     stateful_engine_options {
-      rule_order = "STRICT_ORDER"
+      rule_order = var.stateful_rule_order
     }
-    stateful_default_actions = ["aws:drop_strict", "aws:alert_strict"]
+    stateful_default_actions = var.stateful_default_actions
 
     stateless_default_actions          = ["aws:${var.stateless_default_actions}"]
     stateless_fragment_default_actions = ["aws:${var.stateless_fragment_default_actions}"]
