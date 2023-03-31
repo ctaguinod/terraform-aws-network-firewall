@@ -99,5 +99,5 @@ variable "stateful_rule_order" {
 variable "stateful_default_actions" {
   description = "Set of actions to take on a packet if it does not match any stateful rules in the policy. . You can specify one of either or neither values of aws:drop_strict or aws:drop_established, as well as any combination of aws:alert_strict and aws:alert_established"
   type        = list(any)
-  default     = ["aws:drop_strict", "aws:alert_strict"]
+  default     = []
 }
